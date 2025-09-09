@@ -4,7 +4,6 @@ import asyncio
 import json
 from pick_players import pick_players
 
-TOKEN = 'blank'
 CAPACITY = 8
 MIN_PLAYERS = 2
 DATA_FILE = 'attendance.json'
