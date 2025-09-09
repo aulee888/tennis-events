@@ -22,33 +22,35 @@ async def on_ready():
 
     
 @bot.command()
-async def join(ctx, player1, player2):
+async def join(ctx, partner: discord.Member):
     """Join as a mixed dubs pair with a partner"""
-    pair = (player1, player2)
+    user = ctx.author
+    pair = (user, partner)
 
     # Avoid duplicates
     if pair not in bot.reg_pairs and (pair[::-1]) not in bot.reg_pairs:
         bot.reg_pairs.append(pair)
-        await ctx.send(f'{player1} and {player2} registered!')
+        await ctx.send(f'{user.mention} and {partner.mention} registered!')
     else:
         await ctx.send('This team is already registered!')
 
 
 @bot.command()
-async def cancel(ctx, player1, player2):
-    to_cancel_pair = (player1, player2)
+async def cancel(ctx, partner: discord.member):
+    user = ctx.author
+    pair = (user, partner)
 
-    if to_cancel_pair in bot.reg_pairs:
-        bot.reg_pair.remove(to_cancel_pair)
-        await ctx.send(f'{player1} and {player2} have been removed from the registration list!')
+    if pair in bot.reg_pairs:
+        bot.reg_pair.remove(pair)
+        await ctx.send(f'{user.mention} and {partner.mention} have been removed from the registration list!')
         return
 
-    elif to_cancel_pair[::-1] in bot.reg_pairs:
-        bot.reg_pair.remove(to_cancel_pair[::-1])
-        await ctx.send(f'{player1} and {player2} have been removed from the registration list!')
+    elif pair[::-1] in bot.reg_pairs:
+        bot.reg_pair.remove(pair[::-1])
+        await ctx.send(f'{user.mention} and {partner.mention} have been removed from the registration list!')
         return
 
-    await ctx.send(f'Team: {player1} & {player2} are **not** on the registration list. Try again.')
+    await ctx.send(f'Team: {user.mention} & {partner.mention} are **not** on the registration list. Try again.')
 
 
 @bot.command()
@@ -74,8 +76,7 @@ async def pick(ctx):
         with open(DATA_FILE, 'w') as f:
             json.dump(attendance, f)
 
-        mentions = [f'{p1} & {p2}' for p1, p2 in chosen_pairs]
-        # mentions = [f'{bot.get_user(int(p1)).mention} & {bot.get_user(int(p2)).mention}' for p1, p2 in chosen_pairs]
+        mentions = [f'{p1.mention} & {p2.mention}' for p1, p2 in chosen_pairs]
 
         await ctx.send(f'Selected Teams this weeek: {", ".join(mentions)}')
         bot.reg_pairs = []
