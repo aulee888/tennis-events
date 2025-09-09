@@ -1,0 +1,5 @@
+# Ignores all attendance files
+attendance.json
+
+# Ignores temp __pycache__ dir
+__pycache__/
