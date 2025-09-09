@@ -30,9 +30,6 @@ async def poll(ctx, *players):
 
     await ctx.send(f'Registered: {", ".join(mentions)} ')
  
-    if len(bot.participants) < MIN_PLAYERS:
-        await ctx.send("No UTS this week! Not enough players!")
-        return
 # async def poll(ctx):
 #     """Start a poll asking who is available this week"""
 #     message = await ctx.send('If you are available for UTS this week, react with ✅')
@@ -61,7 +58,6 @@ async def remove(ctx, player):
         await ctx.send(f'{player} is not found on registration list!')
 
  
- 
 @bot.command()
 async def pick(ctx):
     """Initiates the selections for the week"""
@@ -71,17 +67,24 @@ async def pick(ctx):
             attendance = json.load(f)
     except FileNotFoundError:
         attendance = {}
-    chosen_players = pick_players(bot.participants, attendance, CAPACITY)
- 
-    with open(DATA_FILE, 'w') as f:
-        json.dump(attendance, f)
- 
-    mentions = [p for p in chosen_players]
-    # mentions = [f'{bot.get_user(int(p)).mention}' for p in chosen_players]
-    await ctx.send(f'Selected players this week: {", ".join(mentions)}')
- 
-    bot.participants = []
- 
-    return
+    
+    if len(bot.participants) < MIN_PLAYERS:
+        await ctx.send("No UTS this week! Not enough players!")
+        bot.participants = []
+        
+        return
+    else:    
+        chosen_players = pick_players(bot.participants, attendance, CAPACITY)
+    
+        with open(DATA_FILE, 'w') as f:
+            json.dump(attendance, f)
+    
+        mentions = [p for p in chosen_players]
+        # mentions = [f'{bot.get_user(int(p)).mention}' for p in chosen_players]
+        
+        await ctx.send(f'Selected players this week: {", ".join(mentions)}')
+        bot.participants = []
+        
+        return
  
 bot.run(TOKEN)
