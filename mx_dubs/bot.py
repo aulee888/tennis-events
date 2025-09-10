@@ -4,11 +4,15 @@ import asyncio
 import json
 from pick_pairs import pick_pairs
 import os
+from datetime import datetime
 
 TOKEN = os.getenv("MX_DUBS_TOKEN")
 CHANNEL_ID = 1414775798212333710
-CAPACITY = 8
 DATA_FILE = 'mx_dubs/attendance.json'
+
+CAPACITY = 8
+NEXT_SESS = datetime(2025, 9, 16)
+START_TIME = '6pm'  # Set as string
 
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 bot.reg_pairs = []
@@ -75,7 +79,7 @@ async def pick(ctx):
             json.dump(attendance, f)
 
         embed = discord.Embed(
-            title="🎾 Mixed Doubles Teams"
+            title=f"🎾 {NEXT_SESS.strftime('%a')}, {NEXT_SESS.strftime('%m/%d/%Y')} @ {START_TIME}"
             , description="It's game day, baby!"
             , color=discord.Color.green()
         )
