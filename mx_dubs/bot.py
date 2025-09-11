@@ -47,6 +47,7 @@ async def join(ctx, player1=None, player2=None):
 async def cancel(ctx, player1=None, player2=None):
     if not player1 or not player2:
         await ctx.send(f"Missing Player Names -- Use !cancel <Player1> <Player2>")
+        return
 
     to_cancel_pair = (player1, player2)
 
