@@ -52,10 +52,10 @@ async def cancel(ctx, player1=None, player2=None):
     to_cancel_pair = (player1, player2)
 
     if to_cancel_pair in bot.reg_pairs:
-        bot.reg_pair.remove(to_cancel_pair)
+        bot.reg_pairs.remove(to_cancel_pair)
         await ctx.send(f'{player1} and {player2} have been removed from the registration list!')
     elif to_cancel_pair[::-1] in bot.reg_pairs:
-        bot.reg_pair.remove(to_cancel_pair[::-1])
+        bot.reg_pairs.remove(to_cancel_pair[::-1])
         await ctx.send(f'{player1} and {player2} have been removed from the registration list!')
     else:
         await ctx.send(f'Team: {player1} & {player2} are **not** on the registration list. Try again.')
