@@ -67,16 +67,17 @@ async def pick(ctx):
         attendance = {}
 
     if len(bot.reg_pairs) < MIN_TEAMS:
-        await ctx.send("No Mixed Dubs this week! Not enough players!")
-        bot.reg_pairs = []
-
-        return
+        embed = discord.Embed(
+            title="🚫 Mixed Doubles CANCELLED"
+            , description=f"{NEXT_SESS.strftime('%a')}, {NEXT_SESS.strftime('%m/%d/%Y')} @ {START_TIME}"
+            , color=discord.Color.green()
+        )
+    
     else:
-        if len(bot.reg_pairs) >= CAPACITY:
+        if len(bot.reg_pairs) < CAPACITY:
+            chosen_pairs = pick_pairs(bot.reg_pairs, attendance, len(bot.reg_pairs))
+        else:
             chosen_pairs = pick_pairs(bot.reg_pairs, attendance, CAPACITY)
-
-        with open(DATA_FILE, 'w') as f:
-            json.dump(attendance, f)
 
         embed = discord.Embed(
             title="🎾 Mixed Doubles"
@@ -87,11 +88,14 @@ async def pick(ctx):
         for i, (p1, p2) in enumerate(chosen_pairs, start=1):
             embed.add_field(name=f"Team {i}: ", value=f"{p1} & {p2}", inline=False)
 
-        await ctx.send(embed=embed)
+        with open(DATA_FILE, 'w') as f:
+            json.dump(attendance, f)
 
-        bot.reg_pairs = []
+    await ctx.send(embed=embed)
 
-        return
+    bot.reg_pairs = []
+
+    return
 
 
 bot.run(TOKEN)
