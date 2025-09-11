@@ -10,7 +10,8 @@ TOKEN = os.getenv("MX_DUBS_TOKEN")
 CHANNEL_ID = 1414775798212333710
 DATA_FILE = 'mx_dubs/attendance.json'
 
-CAPACITY = 8
+CAPACITY = 8  # Number of teams
+MIN_TEAMS = 2
 NEXT_SESS = datetime(2025, 9, 16)
 START_TIME = '6pm'  # Set as string
 
@@ -64,10 +65,8 @@ async def pick(ctx):
             attendance = json.load(f)
     except FileNotFoundError:
         attendance = {}
-        
-    num_pairs = CAPACITY // 2
 
-    if len(bot.reg_pairs) < num_pairs:
+    if len(bot.reg_pairs) < MIN_TEAMS:
         await ctx.send("No Mixed Dubs this week! Not enough players!")
         bot.reg_pairs = []
 
