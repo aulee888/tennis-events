@@ -27,8 +27,12 @@ async def on_ready():
 
     
 @bot.command()
-async def join(ctx, player1, player2):
+async def join(ctx, player1=None, player2=None):
     """Join as a mixed dubs pair with a partner"""
+    if not player1 or not player2:
+        await ctx.send(f"Missing Player Names -- Use !join <Player1> <Player2>")
+        return
+    
     pair = (player1, player2)
 
     # Avoid duplicates
@@ -40,20 +44,20 @@ async def join(ctx, player1, player2):
 
 
 @bot.command()
-async def cancel(ctx, player1, player2):
+async def cancel(ctx, player1=None, player2=None):
+    if not player1 or not player2:
+        await ctx.send(f"Missing Player Names -- Use !cancel <Player1> <Player2>")
+
     to_cancel_pair = (player1, player2)
 
     if to_cancel_pair in bot.reg_pairs:
         bot.reg_pair.remove(to_cancel_pair)
         await ctx.send(f'{player1} and {player2} have been removed from the registration list!')
-        return
-
     elif to_cancel_pair[::-1] in bot.reg_pairs:
         bot.reg_pair.remove(to_cancel_pair[::-1])
         await ctx.send(f'{player1} and {player2} have been removed from the registration list!')
-        return
-
-    await ctx.send(f'Team: {player1} & {player2} are **not** on the registration list. Try again.')
+    else:
+        await ctx.send(f'Team: {player1} & {player2} are **not** on the registration list. Try again.')
 
 
 @bot.command()
@@ -94,8 +98,6 @@ async def pick(ctx):
     await ctx.send(embed=embed)
 
     bot.reg_pairs = []
-
-    return
 
 
 bot.run(TOKEN)
