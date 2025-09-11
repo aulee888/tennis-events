@@ -10,7 +10,7 @@ TOKEN = os.getenv("MX_DUBS_TOKEN")
 CHANNEL_ID = 1414775798212333710
 DATA_FILE = 'mx_dubs/attendance.json'
 
-CAPACITY = 8  # Number of teams
+CAPACITY = 4  # Number of teams
 MIN_TEAMS = 2
 NEXT_SESS = datetime(2025, 9, 16)
 START_TIME = '6pm'  # Set as string
@@ -72,7 +72,8 @@ async def pick(ctx):
 
         return
     else:
-        chosen_pairs = pick_pairs(bot.reg_pairs, attendance, num_pairs)
+        if len(bot.reg_pairs) >= CAPACITY:
+            chosen_pairs = pick_pairs(bot.reg_pairs, attendance, CAPACITY)
 
         with open(DATA_FILE, 'w') as f:
             json.dump(attendance, f)
