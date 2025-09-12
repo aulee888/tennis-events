@@ -30,7 +30,7 @@ async def on_ready():
 async def join(ctx, player1=None, player2=None):
     """Join as a mixed dubs pair with a partner"""
     if not player1 or not player2:
-        await ctx.send(f"Missing Player Names -- Use !join <Player1> <Player2>")
+        await ctx.send(f"Missing Player Names: Use **!join <Player1> <Player2>**")
         return
     
     pair = (player1, player2)
@@ -38,27 +38,33 @@ async def join(ctx, player1=None, player2=None):
     # Avoid duplicates
     if pair not in bot.reg_pairs and (pair[::-1]) not in bot.reg_pairs:
         bot.reg_pairs.append(pair)
-        await ctx.send(f'{player1} and {player2} registered!')
+        embed = discord.Embed(
+
+        )
+        await ctx.send(
+            f"### Registered Team for {NEXT_SESS.strftime('%a')}, {NEXT_SESS.strftime('%m/%d/%Y')}:"
+            f"\n{player1} & {player2}"
+            )
     else:
-        await ctx.send('This team is already registered!')
+        await ctx.send("This team is already registered!")
 
 
 @bot.command()
 async def cancel(ctx, player1=None, player2=None):
     if not player1 or not player2:
-        await ctx.send(f"Missing Player Names -- Use !cancel <Player1> <Player2>")
+        await ctx.send(f"Missing Player Names: Use **!cancel <Player1> <Player2>**")
         return
 
     to_cancel_pair = (player1, player2)
 
-    if to_cancel_pair in bot.reg_pairs:
+    if to_cancel_pair in bot.reg_pairs or to_cancel_pair[::-1] in bot.reg_pairs:
         bot.reg_pairs.remove(to_cancel_pair)
-        await ctx.send(f'{player1} and {player2} have been removed from the registration list!')
-    elif to_cancel_pair[::-1] in bot.reg_pairs:
-        bot.reg_pairs.remove(to_cancel_pair[::-1])
-        await ctx.send(f'{player1} and {player2} have been removed from the registration list!')
+        await ctx.send(
+            f"### Canceled {NEXT_SESS.strftime('%a')}, {NEXT_SESS.strftime('%m/%d/%Y')} Registration for:"
+            f"\n{player1} & {player2}"
+            )
     else:
-        await ctx.send(f'Team: {player1} & {player2} are **not** on the registration list. Try again.')
+        await ctx.send(f"Team: {player1} & {player2} are **not** on the registration list")
 
 
 @bot.command()
