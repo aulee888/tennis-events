@@ -27,26 +27,58 @@ async def on_ready():
 
     
 @bot.command()
-async def join(ctx, player1=None, player2=None):
+async def join(ctx, player1: discord.Member= None, player2: discord.Member= None):
     """Join as a mixed dubs pair with a partner"""
     if not player1 or not player2:
         await ctx.send(f"Missing Player Names: Use **!join <Player1> <Player2>**")
         return
     
-    pair = (player1, player2)
-
-    # Avoid duplicates
-    if pair not in bot.reg_pairs and (pair[::-1]) not in bot.reg_pairs:
-        bot.reg_pairs.append(pair)
-        embed = discord.Embed(
-
+    try:
+        p1 = bot.get_user(player1.id)
+        # p2 = bot.get_user(player2.id)
+    except AttributeError:
+        ctx.send(f"Don't forget to @ Players! Try again!")
+        return
+    
+    embed = discord.Embed(
+        title=(
+            f"{ctx.author} registered you for 🎾 Mixed Doubles!"
+            f"\n"
+            f"\nCan you make {NEXT_SESS.strftime('%a')}, {NEXT_SESS.strftime('%m/%d/%Y')} @ {START_TIME}?"
         )
-        await ctx.send(
-            f"### Registered Team for {NEXT_SESS.strftime('%a')}, {NEXT_SESS.strftime('%m/%d/%Y')}:"
-            f"\n{player1} & {player2}"
-            )
+        , description=(
+            "✅ = Yes"
+            "\n❌ = No"
+        )
+        , color=discord.Color.green()
+    )
+
+    if p1 == ctx.author:
+        await p1.send(f"You and {player2} registered for Mixed Doubles. Awaiting confirmation from {player2}")
     else:
-        await ctx.send("This team is already registered!")
+        try:
+            sent_confirmation = await p1.send(embed=embed)
+            await sent_confirmation.add_reaction('✅')
+            await sent_confirmation.add_reaction('❌')
+        except discord.Forbidden:
+            await ctx.send("DM could not be sent!")
+    # TODO:
+    # Single Vote Enforcement to avoid multiple reactions
+    
+    # pair = (player1, player2)
+
+    # # Avoid duplicates
+    # if pair not in bot.reg_pairs and (pair[::-1]) not in bot.reg_pairs:
+    #     bot.reg_pairs.append(pair)
+    #     embed = discord.Embed(
+
+    #     )
+    #     await ctx.send(
+    #         f"### Registered Team for {NEXT_SESS.strftime('%a')}, {NEXT_SESS.strftime('%m/%d/%Y')}:"
+    #         f"\n{player1} & {player2}"
+    #         )
+    # else:
+    #     await ctx.send("This team is already registered!")
 
 
 @bot.command()
