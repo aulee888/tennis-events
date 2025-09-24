@@ -25,9 +25,43 @@ async def on_ready():
     channel = bot.get_channel(CHANNEL_ID)
     await channel.send('Hello! This bot is ready!')
 
+
+@bot.event
+async def on_raw_reaction_add(payload):
+    user = await bot.fetch_user(payload.user_id)
+
+    if user == bot.user.id:
+        return
+
+    channel = bot.get_channel(payload.channel_id)
+    if not channel:  # Channel might not be in cache, try fetching
+        channel = await bot.fetch_channel(payload.channel_id)
+
+    message = await channel.fetch_message(payload.message_id)
+    msg_embed = message.embeds[0]
+
+    # Check for "Poll" type questions that expects reactions as confirmations
+    if message.author == bot.user and msg_embed.title == '🎾 Mixed Doubles Confirmation':
+        user_choice = str(payload.emoji)
+
+        if user_choice not in ['✅', '❌']:
+            return
+        
+        if user_choice == '✅':
+            bot.reg_pairs.append()  # Need to figure out how to implement this
+        elif user_choice == '❌':
+            bot.reg_pairs.remove()  # Need to figure out how to implement this
+        else:
+            await channel.send("Something else happened with emojis")
+
+        msg_embed.set_field_at(1, name="Your Status", value=user_choice, inline=False)
+        msg_embed.set_footer(text=f"Last Updated: {datetime.now().strftime('%m/%d/%Y %I:%M:%S %p')}")
+
+        await message.edit(embed=msg_embed)
+
     
 @bot.command()
-async def join(ctx, player1: discord.Member= None, player2: discord.Member= None):
+async def join(ctx, player1: discord.Member= None, player2= None):
     """Join as a mixed dubs pair with a partner"""
     if not player1 or not player2:
         await ctx.send(f"Missing Player Names: Use **!join <Player1> <Player2>**")
@@ -41,19 +75,21 @@ async def join(ctx, player1: discord.Member= None, player2: discord.Member= None
         return
     
     embed = discord.Embed(
-        title=(
-            f"{ctx.author} registered you for 🎾 Mixed Doubles!"
-            f"\n"
-            f"\nCan you make {NEXT_SESS.strftime('%a')}, {NEXT_SESS.strftime('%m/%d/%Y')} @ {START_TIME}?"
-        )
-        , description=(
+        title=(f"🎾 Mixed Doubles Confirmation")
+        , description=(f"\n**{ctx.author}** registered you!")
+        , color=discord.Color.green()
+    )
+    embed.add_field(
+        name=f"Can you make {NEXT_SESS.strftime('%a')}, {NEXT_SESS.strftime('%m/%d/%Y')} @ {START_TIME}?"
+        , value=(
             "✅ = Yes"
             "\n❌ = No"
         )
-        , color=discord.Color.green()
+        , inline=False
     )
+    embed.add_field(name="Your Status", value="Pending...", inline=False)
 
-    if p1 == ctx.author:
+    if p1 != ctx.author:
         await p1.send(f"You and {player2} registered for Mixed Doubles. Awaiting confirmation from {player2}")
     else:
         try:
